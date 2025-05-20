@@ -63,11 +63,50 @@ server.post('/tarefa', (req, res) => {
     })
 
     res.status(200).json(JSON.parse(data))
-})
     //Pegar as informações da nova tarefa, do body da requisição
     //lendo meu arquivo (readFile)
     //inserir a nova tarefa, no arquivo
     //salvar o arquivo (writeFire, appendFile)
+
+})
+
+//Atualizar uma tarefa
+server.put('/tarefa/:id', (req, res) => {
+    const tarefa_id = req.params.id;
+    const { titulo, descricao, dificuldade, user_id } = req.body;
+
+    fs.readFile('./banco.json', 'utf-8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ erro: err });
+        }
+        
+        let lista_de_tarefas = JSON.parse(data);
+        let tarefaIndex = lista_de_tarefas.findIndex(item => item.id == tarefa_id);
+
+        if (tarefaIndex === -1) {
+            return res.status(404).json({ msg: 'Tarefa não encontrada.' });
+        }
+
+        // Atualizando a tarefa
+        lista_de_tarefas[tarefaIndex] = {
+            id: tarefa_id,
+            titulo,
+            descricao,
+            dificuldade,
+            user_id
+        };
+
+        fs.writeFile('./banco.json', JSON.stringify(lista_de_tarefas, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ msg: err });
+            }
+            res.status(200).json({ msg: 'Tarefa atualizada com sucesso!', tarefa: lista_de_tarefas[tarefaIndex] });
+        });
+    });
+});
+
+//Deletar uma tarefa
+
 
 //Criar uma CRUD em arquivo json utilizando RestFul
 
