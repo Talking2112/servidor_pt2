@@ -71,7 +71,7 @@ server.post('/tarefa', (req, res) => {
 })
 
 //Atualizar uma tarefa
-server.put('/tarefa/:id', (req, res) => {
+server.put('/tarefa', (req, res) => {
     const tarefa_id = req.params.id;
     const { titulo, descricao, dificuldade, user_id } = req.body;
 
@@ -106,6 +106,29 @@ server.put('/tarefa/:id', (req, res) => {
 });
 
 //Deletar uma tarefa
+server.delete('/tarefa', (req, res) => {
+    const tarefa_id = req.params.id;
+
+    fs.readFile('./banco.json', 'utf-8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ erro: err });
+        }
+        
+        let lista_de_tarefas = JSON.parse(data);
+        let nova_lista = lista_de_tarefas.filter(item => item.id != tarefa_id);
+
+        if (nova_lista.length === lista_de_tarefas.length) {
+            return res.status(404).json({ msg: 'Tarefa não encontrada.' });
+        }
+
+        fs.writeFile('./banco.json', JSON.stringify(nova_lista, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ msg: err });
+            }
+            res.status(200).json({ msg: 'Tarefa deletada com sucesso!' });
+        });
+    });
+});
 
 
 //Criar uma CRUD em arquivo json utilizando RestFul
